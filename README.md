@@ -8,6 +8,8 @@ The **[colophon](https://tools.simonwillison.net/colophon)** includes links to t
 
 The code lives in [simonw/tools](https://github.com/simonw/tools). Most of these used a version of the Claude custom instructions [described here](https://simonwillison.net/2024/Dec/19/one-shot-python-tools/#custom-instructions).
 
+## Education
+- [Perfect Day Multiplication](https://tools.willsorenson.com/multiply)
 ## Tools
 
 - [OCR](https://tools.simonwillison.net/ocr) for PDF files and images that runs entirely in your browser
