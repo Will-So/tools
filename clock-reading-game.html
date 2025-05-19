@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock Reading Practice Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+        }
+        
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .game-container {
+            display: none;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .clock-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .clock {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            border: 8px solid #2c3e50;
+            border-radius: 50%;
+            margin: 0 auto;
+            background-color: #f8f9fa;
+        }
+        
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            margin: -6px 0 0 -6px;
+            background-color: #2c3e50;
+            border-radius: 50%;
+            z-index: 3;
+        }
+        
+        .clock-hour,
+        .clock-minute {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            background-color: #2c3e50;
+            border-radius: 4px;
+        }
+        
+        .clock-hour {
+            width: 6px;
+            height: 70px;
+            margin-left: -3px;
+            z-index: 2;
+        }
+        
+        .clock-minute {
+            width: 4px;
+            height: 100px;
+            margin-left: -2px;
+            z-index: 1;
+        }
+        
+        .clock-marking {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .clock-marking div {
+            position: absolute;
+            width: 2px;
+            height: 12px;
+            background-color: #2c3e50;
+            left: 50%;
+            margin-left: -1px;
+            transform-origin: center 125px;
+        }
+        
+        .clock-marking div:nth-child(3n) {
+            height: 20px;
+            width: 4px;
+            margin-left: -2px;
+        }
+        
+        .answer-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .time-option {
+            padding: 10px 15px;
+            background-color: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .time-option:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .time-option.selected {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .submit-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #submitBtn {
+            display: inline-block;
+            width: auto;
+            padding: 10px 40px;
+            background-color: #2ecc71;
+        }
+        
+        #submitBtn:hover {
+            background-color: #27ae60;
+        }
+        
+        .feedback {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 15px 0;
+            min-height: 27px;
+        }
+        
+        .correct {
+            color: #2ecc71;
+        }
+        
+        .incorrect {
+            color: #e74c3c;
+        }
+        
+        .results {
+            display: none;
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .settings-container {
+            display: block;
+        }
+        
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .difficulty-btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .difficulty-btn.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        /* Add number labels to clock */
+        .clock-numbers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        
+        .clock-number {
+            position: absolute;
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        
+        @media (max-width: 500px) {
+            .difficulty-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .difficulty-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .clock {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .clock-marking div {
+                transform-origin: center 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Clock Reading Practice</h1>
+        
+        <!-- Game Settings -->
+        <div id="settingsContainer" class="settings-container">
+            <div class="difficulty-selector">
+                <button class="difficulty-btn active" data-difficulty="hour">Hours Only</button>
+                <button class="difficulty-btn" data-difficulty="hour-half">Hours & Half Hours</button>
+                <button class="difficulty-btn" data-difficulty="minute5">5-Minute Increments</button>
+                <button class="difficulty-btn" data-difficulty="minute">Exact Minutes</button>
+            </div>
+            
+            <div class="input-group">
+                <label>Game Duration: <span id="durationValue">60</span> seconds</label>
+                <div class="range-container">
+                    <span>10s</span>
+                    <input type="range" id="gameDuration" min="10" max="300" step="10" value="60">
+                    <span>300s</span>
+                </div>
+            </div>
+            
+            <button id="startBtn">Start Game</button>
+        </div>
+        
+        <!-- Game Area -->
+        <div id="gameContainer" class="game-container">
+            <div class="game-stats">
+                <div>Time: <span id="timeLeft">01:00</span></div>
+                <div>Score: <span id="score">0</span>/<span id="questionsSeen">0</span></div>
+            </div>
+            
+            <div class="clock-container">
+                <div class="clock">
+                    <div class="clock-marking" id="clockMarking"></div>
+                    <div class="clock-numbers" id="clockNumbers"></div>
+                    <div class="clock-hour" id="hourHand"></div>
+                    <div class="clock-minute" id="minuteHand"></div>
+                    <div class="clock-center"></div>
+                </div>
+                
+                <div class="answer-options" id="answerOptions">
+                    <!-- Options will be generated dynamically -->
+                </div>
+                
+                <div class="submit-container">
+                    <button id="submitBtn">Submit</button>
+                </div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <!-- Results -->
+        <div id="results" class="results">
+            <h2>Game Over!</h2>
+            <p>Final Score: <span id="finalScore">0</span>/<span id="totalQuestions">0</span></p>
+            <p>Accuracy: <span id="accuracy">0</span>%</p>
+            <button id="playAgainBtn">Play Again</button>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const settingsContainer = document.getElementById('settingsContainer');
+        const gameContainer = document.getElementById('gameContainer');
+        const resultsContainer = document.getElementById('results');
+        
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        const durationInput = document.getElementById('gameDuration');
+        const durationValue = document.getElementById('durationValue');
+        
+        const startBtn = document.getElementById('startBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        
+        const timeLeftElement = document.getElementById('timeLeft');
+        const scoreElement = document.getElementById('score');
+        const questionsSeenElement = document.getElementById('questionsSeen');
+        const clockMarking = document.getElementById('clockMarking');
+        const clockNumbers = document.getElementById('clockNumbers');
+        const hourHand = document.getElementById('hourHand');
+        const minuteHand = document.getElementById('minuteHand');
+        const answerOptions = document.getElementById('answerOptions');
+        const feedbackElement = document.getElementById('feedback');
+        
+        const finalScoreElement = document.getElementById('finalScore');
+        const totalQuestionsElement = document.getElementById('totalQuestions');
+        const accuracyElement = document.getElementById('accuracy');
+        
+        // Game state
+        let gameActive = false;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let currentQuestion = null;
+        let selectedAnswer = null;
+        let score = 0;
+        let questionsSeen = 0;
+        let pendingQuestions = [];
+        let selectedDifficulty = 'hour'; // Default difficulty
+        
+        // Create clock markings (12 hour markers)
+        function createClockMarkings() {
+            clockMarking.innerHTML = '';
+            
+            for (let i = 0; i < 12; i++) {
+                const marking = document.createElement('div');
+                marking.style.transform = `rotate(${i * 30}deg)`;
+                clockMarking.appendChild(marking);
+            }
+            
+            // Add clock numbers
+            clockNumbers.innerHTML = '';
+            
+            for (let i = 1; i <= 12; i++) {
+                const number = document.createElement('div');
+                number.className = 'clock-number';
+                number.textContent = i;
+                
+                // Calculate position for clock numbers (arrange in a circle)
+                const angle = (i * 30 - 90) * (Math.PI / 180);
+                const radius = 105; // Distance from center
+                const x = radius * Math.cos(angle);
+                const y = radius * Math.sin(angle);
+                
+                number.style.left = `calc(50% + ${x}px)`;
+                number.style.top = `calc(50% + ${y}px)`;
+                number.style.transform = 'translate(-50%, -50%)';
+                
+                clockNumbers.appendChild(number);
+            }
+        }
+        
+        // Set the clock hands to display the given time
+        function setClockHands(hours, minutes) {
+            // Make sure hours is in 1-12 range
+            const hour12 = hours === 0 ? 12 : (hours > 12 ? hours - 12 : hours);
+            
+            // Calculate rotation angles
+            const hourAngle = (hour12 * 30) + (minutes * 0.5); // 30 degrees per hour + adjustment for minutes
+            const minuteAngle = minutes * 6; // 6 degrees per minute
+            
+            hourHand.style.transform = `rotate(${hourAngle}deg)`;
+            minuteHand.style.transform = `rotate(${minuteAngle}deg)`;
+        }
+        
+        // Format time as HH:MM (12-hour format without AM/PM)
+        function formatTimeWithoutAMPM(hours, minutes) {
+            // Convert to 12-hour format
+            const hour12 = hours % 12;
+            const displayHours = hour12 === 0 ? 12 : hour12;
+            const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+            
+            return `${displayHours}:${formattedMinutes}`;
+        }
+        
+        // Format time as MM:SS for timer display
+        function formatTimerDisplay(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // Generate random time based on difficulty
+        function generateRandomTime() {
+            let hours, minutes;
+            
+            switch (selectedDifficulty) {
+                case 'hour':
+                    hours = Math.floor(Math.random() * 12) + 1; // 1-12
+                    minutes = 0;
+                    break;
+                case 'hour-half':
+                    hours = Math.floor(Math.random() * 12) + 1; // 1-12
+                    minutes = Math.random() < 0.5 ? 0 : 30;
+                    break;
+                case 'minute5':
+                    hours = Math.floor(Math.random() * 12) + 1; // 1-12
+                    minutes = Math.floor(Math.random() * 12) * 5; // 0, 5, 10, 15, ... 55
+                    break;
+                case 'minute':
+                    hours = Math.floor(Math.random() * 12) + 1; // 1-12
+                    minutes = Math.floor(Math.random() * 60);
+                    break;
+                default:
+                    hours = Math.floor(Math.random() * 12) + 1; // 1-12
+                    minutes = 0;
+            }
+            
+            return { hours, minutes };
+        }
+        
+        // Generate answer options (1 correct, 3 incorrect)
+        function generateAnswerOptions(correctHours, correctMinutes) {
+            const options = [];
+            
+            // Add correct answer
+            options.push({
+                hours: correctHours,
+                minutes: correctMinutes,
+                text: formatTimeWithoutAMPM(correctHours, correctMinutes),
+                correct: true
+            });
+            
+            // Add incorrect answers
+            while (options.length < 4) {
+                const wrongTime = generateRandomTime();
+                const wrongText = formatTimeWithoutAMPM(wrongTime.hours, wrongTime.minutes);
+                
+                // Ensure no duplicate options
+                if (!options.some(option => option.text === wrongText)) {
+                    options.push({
+                        hours: wrongTime.hours,
+                        minutes: wrongTime.minutes,
+                        text: wrongText,
+                        correct: false
+                    });
+                }
+            }
+            
+            // Shuffle options
+            return shuffleArray(options);
+        }
+        
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Generate a new question
+        function generateQuestion() {
+            const time = generateRandomTime();
+            const options = generateAnswerOptions(time.hours, time.minutes);
+            
+            return {
+                hours: time.hours,
+                minutes: time.minutes,
+                options: options,
+                answered: false
+            };
+        }
+        
+        // Generate initial set of questions
+        function generateInitialQuestions() {
+            const questions = [];
+            const initialCount = 10; // Start with 10 questions
+            
+            for (let i = 0; i < initialCount; i++) {
+                questions.push(generateQuestion());
+            }
+            return questions;
+        }
+        
+        // Display the current question
+        function displayQuestion() {
+            if (!currentQuestion) return;
+            
+            // Set clock hands
+            setClockHands(currentQuestion.hours, currentQuestion.minutes);
+            
+            // Create answer options
+            answerOptions.innerHTML = '';
+            selectedAnswer = null;
+            
+            currentQuestion.options.forEach((option, index) => {
+                const optionBtn = document.createElement('div');
+                optionBtn.classList.add('time-option');
+                optionBtn.textContent = option.text;
+                optionBtn.dataset.index = index;
+                
+                optionBtn.addEventListener('click', () => {
+                    // Remove selected class from all options
+                    document.querySelectorAll('.time-option').forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    optionBtn.classList.add('selected');
+                    
+                    // Save selected answer
+                    selectedAnswer = index;
+                });
+                
+                answerOptions.appendChild(optionBtn);
+            });
+        }
+        
+        // Difficulty selector
+        difficultyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                difficultyBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                // Set selected difficulty
+                selectedDifficulty = btn.getAttribute('data-difficulty');
+            });
+        });
+        
+        // Update range input display
+        durationInput.addEventListener('input', () => {
+            durationValue.textContent = durationInput.value;
+        });
+        
+        // Start the game
+        function startGame() {
+            // Create clock markings and numbers
+            createClockMarkings();
+            
+            const gameDuration = parseInt(durationInput.value);
+            
+            if (gameDuration < 10) {
+                alert('Please set a valid duration!');
+                return;
+            }
+            
+            // Reset game state
+            gameActive = true;
+            timeLeft = gameDuration;
+            score = 0;
+            questionsSeen = 0;
+            
+            scoreElement.textContent = score;
+            questionsSeenElement.textContent = questionsSeen;
+            timeLeftElement.textContent = formatTimerDisplay(timeLeft);
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            
+            // Generate initial questions
+            pendingQuestions = generateInitialQuestions();
+            currentQuestion = pendingQuestions[0];
+            displayQuestion();
+            
+            // Show game container, hide settings
+            settingsContainer.style.display = 'none';
+            gameContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            
+            // Start timer
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timeLeftElement.textContent = formatTimerDisplay(timeLeft);
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // Check the user's answer
+        function checkAnswer() {
+            if (!gameActive || !currentQuestion || selectedAnswer === null) return;
+            
+            const selectedOption = currentQuestion.options[selectedAnswer];
+            const isCorrect = selectedOption.correct;
+            
+            questionsSeen++;
+            questionsSeenElement.textContent = questionsSeen;
+            
+            if (isCorrect) {
+                // Correct answer
+                score++;
+                scoreElement.textContent = score;
+                feedbackElement.textContent = 'Correct!';
+                feedbackElement.className = 'feedback correct';
+                
+                // Remove current question from pending questions
+                pendingQuestions.shift();
+                
+                // If we're running low on questions, add more
+                if (pendingQuestions.length < 5) {
+                    pendingQuestions.push(generateQuestion());
+                }
+            } else {
+                // Wrong answer
+                const correctOption = currentQuestion.options.find(opt => opt.correct);
+                feedbackElement.textContent = `Incorrect! The correct time is ${correctOption.text}`;
+                feedbackElement.className = 'feedback incorrect';
+                
+                // Move current question to the back of the queue
+                const current = pendingQuestions.shift();
+                pendingQuestions.push(current);
+            }
+            
+            // Get next question
+            currentQuestion = pendingQuestions[0] || null;
+            
+            // Clear feedback after a delay and show next question
+            setTimeout(() => {
+                feedbackElement.textContent = '';
+                feedbackElement.className = 'feedback';
+                displayQuestion();
+            }, 1500);
+        }
+        
+        // End the game
+        function endGame() {
+            // Stop the timer
+            clearInterval(timerInterval);
+            gameActive = false;
+            
+            // Update results
+            finalScoreElement.textContent = score;
+            totalQuestionsElement.textContent = questionsSeen;
+            
+            // Calculate accuracy
+            const accuracy = questionsSeen > 0 ? ((score / questionsSeen) * 100).toFixed(1) : '0.0';
+            accuracyElement.textContent = accuracy;
+            
+            // Show results
+            gameContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        
+        submitBtn.addEventListener('click', checkAnswer);
+        
+        playAgainBtn.addEventListener('click', () => {
+            settingsContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

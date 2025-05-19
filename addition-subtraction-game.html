@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addition and Subtraction Practice Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+        }
+        
+        .range-value {
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .game-container {
+            display: none;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .question {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 30px 0;
+        }
+        
+        .answer-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        #userAnswer {
+            flex: 1;
+            padding: 10px;
+            font-size: 18px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        #submitBtn {
+            background-color: #2ecc71;
+            min-width: 100px;
+        }
+        
+        #submitBtn:hover {
+            background-color: #27ae60;
+        }
+        
+        .feedback {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            min-height: 27px;
+        }
+        
+        .correct {
+            color: #2ecc71;
+        }
+        
+        .incorrect {
+            color: #e74c3c;
+        }
+        
+        .results {
+            display: none;
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .settings-container {
+            display: block;
+        }
+        
+        .operation-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .operation-btn {
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .operation-btn.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        @media (max-width: 500px) {
+            .operation-selector {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .operation-btn {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Addition and Subtraction Practice</h1>
+        
+        <!-- Game Settings -->
+        <div id="settingsContainer" class="settings-container">
+            <div class="operation-selector">
+                <button class="operation-btn active" data-operation="addition">Addition (+)</button>
+                <button class="operation-btn" data-operation="subtraction">Subtraction (-)</button>
+                <button class="operation-btn" data-operation="mixed">Mixed (+ and -)</button>
+            </div>
+            
+            <div class="input-group">
+                <label>First Number Limit: <span id="num1LimitValue">99</span></label>
+                <div class="range-container">
+                    <span>1</span>
+                    <input type="range" id="num1Limit" min="1" max="99" value="99">
+                    <span>99</span>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Second Number Limit: <span id="num2LimitValue">99</span></label>
+                <div class="range-container">
+                    <span>1</span>
+                    <input type="range" id="num2Limit" min="1" max="99" value="99">
+                    <span>99</span>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Game Duration: <span id="durationValue">60</span> seconds</label>
+                <div class="range-container">
+                    <span>10s</span>
+                    <input type="range" id="gameDuration" min="10" max="300" step="10" value="60">
+                    <span>300s</span>
+                </div>
+            </div>
+            
+            <button id="startBtn">Start Game</button>
+        </div>
+        
+        <!-- Game Area -->
+        <div id="gameContainer" class="game-container">
+            <div class="game-stats">
+                <div>Time: <span id="timeLeft">01:00</span></div>
+                <div>Score: <span id="score">0</span>/<span id="questionsSeen">0</span></div>
+            </div>
+            
+            <div class="question" id="question">45 + 38 = ?</div>
+            
+            <div class="answer-container">
+                <input type="number" id="userAnswer" placeholder="Enter answer" autocomplete="off">
+                <button id="submitBtn">Submit</button>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <!-- Results -->
+        <div id="results" class="results">
+            <h2>Game Over!</h2>
+            <p>Final Score: <span id="finalScore">0</span>/<span id="totalQuestions">0</span></p>
+            <p>Accuracy: <span id="accuracy">0</span>%</p>
+            <button id="playAgainBtn">Play Again</button>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const settingsContainer = document.getElementById('settingsContainer');
+        const gameContainer = document.getElementById('gameContainer');
+        const resultsContainer = document.getElementById('results');
+        
+        const operationBtns = document.querySelectorAll('.operation-btn');
+        const num1LimitInput = document.getElementById('num1Limit');
+        const num2LimitInput = document.getElementById('num2Limit');
+        const durationInput = document.getElementById('gameDuration');
+        const num1LimitValue = document.getElementById('num1LimitValue');
+        const num2LimitValue = document.getElementById('num2LimitValue');
+        const durationValue = document.getElementById('durationValue');
+        
+        const startBtn = document.getElementById('startBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        
+        const timeLeftElement = document.getElementById('timeLeft');
+        const scoreElement = document.getElementById('score');
+        const questionsSeenElement = document.getElementById('questionsSeen');
+        const questionElement = document.getElementById('question');
+        const userAnswerInput = document.getElementById('userAnswer');
+        const feedbackElement = document.getElementById('feedback');
+        
+        const finalScoreElement = document.getElementById('finalScore');
+        const totalQuestionsElement = document.getElementById('totalQuestions');
+        const accuracyElement = document.getElementById('accuracy');
+        
+        // Game state
+        let gameActive = false;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let currentQuestion = null;
+        let score = 0;
+        let questionsSeen = 0;
+        let pendingQuestions = [];
+        let selectedOperation = 'addition'; // Default operation
+        
+        // Operation selector
+        operationBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                operationBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                // Set selected operation
+                selectedOperation = btn.getAttribute('data-operation');
+            });
+        });
+        
+        // Update range input displays
+        num1LimitInput.addEventListener('input', () => {
+            num1LimitValue.textContent = num1LimitInput.value;
+        });
+        
+        num2LimitInput.addEventListener('input', () => {
+            num2LimitValue.textContent = num2LimitInput.value;
+        });
+        
+        durationInput.addEventListener('input', () => {
+            durationValue.textContent = durationInput.value;
+        });
+        
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // Generate a random number between 1 and the limit
+        function generateRandomNumber(limit) {
+            return Math.floor(Math.random() * limit) + 1;
+        }
+        
+        // Generate a new question based on the selected operation
+        function generateQuestion() {
+            const num1Limit = parseInt(num1LimitInput.value);
+            const num2Limit = parseInt(num2LimitInput.value);
+            
+            let num1, num2, operation, answer;
+            
+            // Determine operation
+            if (selectedOperation === 'mixed') {
+                operation = Math.random() < 0.5 ? '+' : '-';
+            } else {
+                operation = selectedOperation === 'addition' ? '+' : '-';
+            }
+            
+            // For subtraction, ensure num1 >= num2 to avoid negative answers
+            if (operation === '-') {
+                num1 = generateRandomNumber(num1Limit);
+                num2 = generateRandomNumber(Math.min(num1, num2Limit));
+            } else {
+                num1 = generateRandomNumber(num1Limit);
+                num2 = generateRandomNumber(num2Limit);
+            }
+            
+            // Calculate answer
+            if (operation === '+') {
+                answer = num1 + num2;
+            } else {
+                answer = num1 - num2;
+            }
+            
+            return { num1, num2, operation, answer };
+        }
+        
+        // Generate initial set of questions
+        function generateInitialQuestions() {
+            const questions = [];
+            const initialCount = 10; // Start with 10 questions
+            
+            for (let i = 0; i < initialCount; i++) {
+                questions.push(generateQuestion());
+            }
+            return questions;
+        }
+        
+        // Display the current question
+        function displayQuestion() {
+            if (!currentQuestion) return;
+            questionElement.textContent = `${currentQuestion.num1} ${currentQuestion.operation} ${currentQuestion.num2} = ?`;
+        }
+        
+        // Start the game
+        function startGame() {
+            const num1Limit = parseInt(num1LimitInput.value);
+            const num2Limit = parseInt(num2LimitInput.value);
+            const gameDuration = parseInt(durationInput.value);
+            
+            if (num1Limit < 1 || num2Limit < 1 || gameDuration < 1) {
+                alert('Please set valid limits and duration!');
+                return;
+            }
+            
+            // Reset game state
+            gameActive = true;
+            timeLeft = gameDuration;
+            score = 0;
+            questionsSeen = 0;
+            
+            scoreElement.textContent = score;
+            questionsSeenElement.textContent = questionsSeen;
+            timeLeftElement.textContent = formatTime(timeLeft);
+            userAnswerInput.value = '';
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            
+            // Generate initial questions
+            pendingQuestions = generateInitialQuestions();
+            currentQuestion = pendingQuestions[0];
+            displayQuestion();
+            
+            // Show game container, hide settings
+            settingsContainer.style.display = 'none';
+            gameContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            
+            // Focus on input
+            userAnswerInput.focus();
+            
+            // Start timer
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timeLeftElement.textContent = formatTime(timeLeft);
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // Check the user's answer
+        function checkAnswer() {
+            if (!gameActive || !currentQuestion) return;
+            
+            const userAnswer = parseInt(userAnswerInput.value);
+            if (isNaN(userAnswer)) return;
+            
+            const correctAnswer = currentQuestion.answer;
+            
+            questionsSeen++;
+            questionsSeenElement.textContent = questionsSeen;
+            
+            if (userAnswer === correctAnswer) {
+                // Correct answer
+                score++;
+                scoreElement.textContent = score;
+                feedbackElement.textContent = 'Correct!';
+                feedbackElement.className = 'feedback correct';
+                
+                // Remove current question from pending questions
+                pendingQuestions.shift();
+                
+                // If we're running low on questions, add more
+                if (pendingQuestions.length < 5) {
+                    pendingQuestions.push(generateQuestion());
+                }
+            } else {
+                // Wrong answer
+                feedbackElement.textContent = `Incorrect! ${currentQuestion.num1} ${currentQuestion.operation} ${currentQuestion.num2} = ${correctAnswer}`;
+                feedbackElement.className = 'feedback incorrect';
+                
+                // Move current question to the back of the queue
+                const current = pendingQuestions.shift();
+                pendingQuestions.push(current);
+            }
+            
+            // Get next question
+            currentQuestion = pendingQuestions[0] || null;
+            displayQuestion();
+            
+            // Clear input
+            userAnswerInput.value = '';
+            userAnswerInput.focus();
+            
+            // Clear feedback after a delay
+            setTimeout(() => {
+                feedbackElement.textContent = '';
+                feedbackElement.className = 'feedback';
+            }, 1500);
+        }
+        
+        // End the game
+        function endGame() {
+            // Stop the timer
+            clearInterval(timerInterval);
+            gameActive = false;
+            
+            // Update results
+            finalScoreElement.textContent = score;
+            totalQuestionsElement.textContent = questionsSeen;
+            
+            // Calculate accuracy
+            const accuracy = questionsSeen > 0 ? ((score / questionsSeen) * 100).toFixed(1) : '0.0';
+            accuracyElement.textContent = accuracy;
+            
+            // Show results
+            gameContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        
+        submitBtn.addEventListener('click', checkAnswer);
+        
+        userAnswerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        
+        playAgainBtn.addEventListener('click', () => {
+            settingsContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

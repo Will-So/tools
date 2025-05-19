@@ -1,15 +1,17 @@
-# tools.simonwillison.net
+# tools.willsorenson.com
 
-Miscellaneous HTML+JavaScript tools I have built, almost all with the assistance of LLMs.
+Forked fromtools.simonwillison.net Miscellaneous HTML+JavaScript tools I have built, almost all with the assistance of LLMs.
 
 This collection is partly **an experiment** in how much it's possible to get done through prompting alone, against projects with extremely low stakes. 
 
 The **[colophon](https://tools.simonwillison.net/colophon)** includes links to the prompts and chat transcripts I used to create and iterate on each of these tools.
 
-The code lives in [simonw/tools](https://github.com/simonw/tools). Most of these used a version of the Claude custom instructions [described here](https://simonwillison.net/2024/Dec/19/one-shot-python-tools/#custom-instructions).
+The code lives in [will-so/tools](https://github.com/simonw/tools). Most of these used a version of the Claude custom instructions [described here](https://simonwillison.net/2024/Dec/19/one-shot-python-tools/#custom-instructions).
 
 ## Education
 - [Perfect Day Multiplication](https://tools.willsorenson.com/multiply)
+- [Addition and Subtraction Game](https://tools.willsorenson.com/addition-subtraction-game)
+- [Reading Clocks Game](https://tools.willsorenson.com/clock-reading-game)
 ## Tools
 
 - [OCR](https://tools.simonwillison.net/ocr) for PDF files and images that runs entirely in your browser
