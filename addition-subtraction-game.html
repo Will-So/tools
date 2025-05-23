@@ -136,10 +136,90 @@
             margin-top: 20px;
             border-radius: 4px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
         .settings-container {
             display: block;
+        }
+        
+        /* Star and streamer celebration animation */
+        .star, .streamer {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .star {
+            font-size: 24px;
+            color: #f1c40f;
+        }
+        
+        .streamer {
+            width: 6px;
+            height: 50px;
+            border-radius: 3px;
+        }
+        
+        .streamer.red {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+        
+        .streamer.blue {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+        }
+        
+        .streamer.green {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+        
+        .streamer.purple {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        }
+        
+        .streamer.orange {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+        
+        @keyframes starFly {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg) scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-150px) translateX(var(--drift, 0px)) rotate(180deg) scale(1.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-300px) translateX(var(--drift, 0px)) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes streamerFall {
+            0% {
+                transform: translateY(-100px) translateX(0) rotate(var(--rotation, 0deg));
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px)) translateX(var(--drift, 0px)) rotate(calc(var(--rotation, 0deg) + 720deg));
+                opacity: 0.7;
+            }
+        }
+        
+        .star.animate {
+            animation: starFly 2s ease-out forwards;
+        }
+        
+        .streamer.animate {
+            animation: streamerFall 3s ease-in forwards;
+        }
+        
+        .perfect-score {
+            color: #f39c12;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
         
         .operation-selector {
@@ -371,6 +451,84 @@
             questionElement.textContent = `${currentQuestion.num1} ${currentQuestion.operation} ${currentQuestion.num2} = ?`;
         }
         
+        // Create star and streamer celebration effect
+        function createCelebration() {
+            const container = document.body;
+            
+            // Create flying stars
+            const starCount = 15;
+            for (let i = 0; i < starCount; i++) {
+                setTimeout(function() {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.innerHTML = '⭐';
+                    
+                    // Random starting position across the width
+                    const startX = Math.random() * window.innerWidth;
+                    star.style.left = startX + 'px';
+                    star.style.top = (window.innerHeight - 100) + 'px';
+                    
+                    // Add random horizontal drift
+                    const drift = (Math.random() - 0.5) * 200;
+                    star.style.setProperty('--drift', drift + 'px');
+                    
+                    container.appendChild(star);
+                    
+                    // Start animation
+                    setTimeout(function() {
+                        star.classList.add('animate');
+                    }, 10);
+                    
+                    // Remove star after animation
+                    setTimeout(function() {
+                        if (star.parentNode) {
+                            star.parentNode.removeChild(star);
+                        }
+                    }, 2500);
+                }, i * 80); // Stagger the star creation
+            }
+            
+            // Create falling streamers
+            const streamerCount = 25;
+            const colors = ['red', 'blue', 'green', 'purple', 'orange'];
+            
+            for (let i = 0; i < streamerCount; i++) {
+                setTimeout(function() {
+                    const streamer = document.createElement('div');
+                    streamer.className = 'streamer';
+                    
+                    // Random color
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    streamer.classList.add(color);
+                    
+                    // Random starting position across the width
+                    const startX = Math.random() * window.innerWidth;
+                    streamer.style.left = startX + 'px';
+                    streamer.style.top = '-100px';
+                    
+                    // Add random horizontal drift and rotation
+                    const drift = (Math.random() - 0.5) * 100;
+                    const rotation = Math.random() * 360;
+                    streamer.style.setProperty('--drift', drift + 'px');
+                    streamer.style.setProperty('--rotation', rotation + 'deg');
+                    
+                    container.appendChild(streamer);
+                    
+                    // Start animation
+                    setTimeout(function() {
+                        streamer.classList.add('animate');
+                    }, 10);
+                    
+                    // Remove streamer after animation
+                    setTimeout(function() {
+                        if (streamer.parentNode) {
+                            streamer.parentNode.removeChild(streamer);
+                        }
+                    }, 3500);
+                }, i * 60); // Stagger the streamer creation
+            }
+        }
+        
         // Start the game
         function startGame() {
             const num1Limit = parseInt(num1LimitInput.value);
@@ -483,6 +641,34 @@
             // Calculate accuracy
             const accuracy = questionsSeen > 0 ? ((score / questionsSeen) * 100).toFixed(1) : '0.0';
             accuracyElement.textContent = accuracy;
+            
+            // Check for perfect score and add celebration
+            if (questionsSeen > 0 && accuracy == 100.0) {
+                accuracyElement.classList.add('perfect-score');
+                createCelebration();
+                
+                // Add congratulatory message
+                const congratsMsg = document.createElement('p');
+                congratsMsg.textContent = '🎉 Perfect Score! Fantastic work! 🎉';
+                congratsMsg.style.color = '#f39c12';
+                congratsMsg.style.fontWeight = 'bold';
+                congratsMsg.style.fontSize = '18px';
+                congratsMsg.style.margin = '10px 0';
+                congratsMsg.style.textShadow = '1px 1px 2px rgba(0,0,0,0.3)';
+                
+                // Insert after accuracy display
+                const accuracyParent = accuracyElement.parentElement;
+                accuracyParent.parentNode.insertBefore(congratsMsg, accuracyParent.nextSibling);
+            } else {
+                // Remove perfect score styling if it exists
+                accuracyElement.classList.remove('perfect-score');
+                
+                // Remove any existing congratulatory message
+                const existingMsg = resultsContainer.querySelector('p[style*="color: #f39c12"]');
+                if (existingMsg) {
+                    existingMsg.remove();
+                }
+            }
             
             // Show results
             gameContainer.style.display = 'none';
