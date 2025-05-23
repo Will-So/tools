@@ -217,6 +217,8 @@
             margin-top: 20px;
             border-radius: 4px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
         .settings-container {
@@ -260,6 +262,40 @@
             font-weight: bold;
             font-size: 18px;
             color: #2c3e50;
+        }
+        
+        /* Star celebration animation */
+        .star {
+            position: absolute;
+            font-size: 24px;
+            color: #f1c40f;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        @keyframes starFly {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg) scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-150px) translateX(var(--drift, 0px)) rotate(180deg) scale(1.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-300px) translateX(var(--drift, 0px)) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .star.animate {
+            animation: starFly 2s ease-out forwards;
+        }
+        
+        .perfect-score {
+            color: #f39c12;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
         
         @media (max-width: 500px) {
@@ -575,6 +611,43 @@
             });
         }
         
+        // Create star celebration effect
+        function createStarCelebration() {
+            const container = document.body;
+            const starCount = 20;
+            
+            for (let i = 0; i < starCount; i++) {
+                setTimeout(() => {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.innerHTML = '⭐';
+                    
+                    // Random starting position across the width
+                    const startX = Math.random() * window.innerWidth;
+                    star.style.left = startX + 'px';
+                    star.style.top = (window.innerHeight - 100) + 'px';
+                    
+                    // Add random horizontal drift
+                    const drift = (Math.random() - 0.5) * 200;
+                    star.style.setProperty('--drift', drift + 'px');
+                    
+                    container.appendChild(star);
+                    
+                    // Start animation
+                    setTimeout(() => {
+                        star.classList.add('animate');
+                    }, 10);
+                    
+                    // Remove star after animation
+                    setTimeout(() => {
+                        if (star.parentNode) {
+                            star.parentNode.removeChild(star);
+                        }
+                    }, 2500);
+                }, i * 100); // Stagger the star creation
+            }
+        }
+        
         // Difficulty selector
         difficultyBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -696,6 +769,33 @@
             // Calculate accuracy
             const accuracy = questionsSeen > 0 ? ((score / questionsSeen) * 100).toFixed(1) : '0.0';
             accuracyElement.textContent = accuracy;
+            
+            // Check for perfect score and add celebration
+            if (questionsSeen > 0 && accuracy == 100.0) {
+                accuracyElement.classList.add('perfect-score');
+                createStarCelebration();
+                
+                // Add congratulatory message
+                const congratsMsg = document.createElement('p');
+                congratsMsg.textContent = '🎉 Perfect Score! Amazing work! 🎉';
+                congratsMsg.style.color = '#f39c12';
+                congratsMsg.style.fontWeight = 'bold';
+                congratsMsg.style.fontSize = '18px';
+                congratsMsg.style.margin = '10px 0';
+                
+                // Insert after accuracy display
+                const accuracyParent = accuracyElement.parentElement;
+                accuracyParent.parentNode.insertBefore(congratsMsg, accuracyParent.nextSibling);
+            } else {
+                // Remove perfect score styling if it exists
+                accuracyElement.classList.remove('perfect-score');
+                
+                // Remove any existing congratulatory message
+                const existingMsg = resultsContainer.querySelector('p[style*="color: #f39c12"]');
+                if (existingMsg) {
+                    existingMsg.remove();
+                }
+            }
             
             // Show results
             gameContainer.style.display = 'none';
